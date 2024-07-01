@@ -1,39 +1,74 @@
 
     const apiKey = '6f93c2351ce0c04e867d551b63a23087';
-    const apiUrl = "http://api.openweathermap.org/geo/1.0/zip?zip=${zipCode},US&appid=${apiKey}";
 
-    const searchBox = document.querySelector(".search input");
-    const searchBtn = document.querySelector(".search input");
-    const weatherIcon = document.querySelector(".weather-icon");
+
+    const searchBox = document.getElementById('zipCode');
+    const searchBtn = document.getElementById('searchBtn');
+    const weatherIcon = document.getElementById("weather-icon");
 
 
     async function checkWeather(zipCode){
-        const response = await fetch(apiUrl + zipCode `&appid=${apiKey}` );
-        var data = await response.json();
-        console.log(data);
-        document.querySelector(".zipCode").innerHTML =data.name;
-        document.querySelector(".temp").innerHTML =Math(round.main.temp) + "°F";
-        document.querySelector(".humidity").innerHTML =data.main.humidity + "%";
-        document.querySelector(".wind").innerHTML =data.wind.speed + "mph";
+        try{
+        const apiUrl = `http://api.openweathermap.org/geo/1.0/zip?zip=${zipCode},US&appid=${apiKey}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        if(data.Weather[0].main == "Clouds"){
-            weatherIcon.src = "weather_app/clouds.png"    
-        }
-        else if (data.Weather[0].main == "Clear"){
-            weatherIcon.src = "weather_app/clear.png"
-        }
-        else if (data.Weather[0].main == "Rain"){
-            weatherIcon.src = "weather_app/rain.png"
-        }
-        else if (data.Weather[0].main == "Drizzle"){
-            weatherIcon.src = "weather_app/drizzle.png"
-        }
-        else if (data.Weather[0].main == "Mist"){
-            weatherIcon.src = "weather_app/mist.png"
-        }
+        const lat = data.lat;
+        const lon = data.lon;
+        console.log(`Longitude: ${lon}, Latitude: ${lat}`);
+        const weatherUrl= `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
+        const weatherResponse = await fetch(weatherUrl);
+        const weatherData = await weatherResponse.json();
 
+        
 
+        return weatherData;
+} catch (error) {
+        console.error('Error fetching weather data:', error);
+        throw error; // Optional: rethrow the error to handle it in the click event listener
     }
-searchBtn.addEventListener("click", ()=>{
-    checkWeather(searchBox.Value);
-})
+}
+    
+
+    function updateWeatherUI(data) {
+        console.log(data);
+
+        // Update DOM elements with weather data
+        document.getElementById("zipCode").innerHTML =data.timezone;
+        document.getElementById("temp").innerHTML =Math.round(data.main.temp) + "°F";
+        document.getElementById("humidity").innerHTML =data.main.humidity + "%";
+        document.getElementById("wind").innerHTML =data.wind.speed + "mph";
+
+            // Weather icon based on weather condition
+        const weatherCondition = data.weather[0].main.toLowerCase();
+        document.getElementById("weather-icon").src = getWeatherIcon(weatherCondition);
+    }
+
+
+function getWeatherIcon(weatherCondition) {
+    switch (weatherCondition) {
+        case "clouds":
+            return "clouds.png";
+        case "clear":
+            return "clear.png";
+        case "rain":
+            return "weather_app/rain.png";
+        case "drizzle":
+            return "weather_app/drizzle.png";
+        case "mist":
+            return "weather_app/mist.png";
+        default:
+            return "weather_app/clear.png";
+    }
+}
+
+searchBtn.addEventListener("click", async(e)=>{
+    e.preventDefault();
+    try { 
+        const weatherData = await checkWeather(searchBox.value);
+        updateWeatherUI(weatherData);
+    } catch (error) {
+        console.error('Error handling weather data:', error);
+        // Handle the error (e.g., display a message to the user)
+    }
+});

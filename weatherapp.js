@@ -34,7 +34,7 @@
         console.log(data);
 
         // Update DOM elements with weather data
-        document.getElementById("zipCode").innerHTML =data.timezone;
+        document.getElementById("zipCode").innerHTML =data.zipCode;
         document.getElementById("temp").innerHTML =Math.round(data.main.temp) + "°F";
         document.getElementById("humidity").innerHTML =data.main.humidity + "%";
         document.getElementById("wind").innerHTML =data.wind.speed + "mph";
@@ -52,13 +52,13 @@ function getWeatherIcon(weatherCondition) {
         case "clear":
             return "clear.png";
         case "rain":
-            return "weather_app/rain.png";
+            return "rain.png";
         case "drizzle":
-            return "weather_app/drizzle.png";
+            return "drizzle.png";
         case "mist":
-            return "weather_app/mist.png";
+            return "mist.png";
         default:
-            return "weather_app/clear.png";
+            return "clear.png";
     }
 }
 
